@@ -9,11 +9,11 @@ In this unit you will create a backend (server) to interact with a pre-built fro
 * Learn what a server is, how it works, and what it does
 * Understand client-server from the server perspective: how a server interprets the http request and develops a response
 * Implement the Express framework on top of Node.js: define middleware and configure Express Router
-* Handle different types of requests fromo clients
+* Handle different types of requests from clients
 * Interact with a third-party API (Star Wars API) by having your server act as a client: send requests from your server to the Star Wars API to retrieve data for your frontend.
 
 ## What is Express?
-Express is a framework for Node.js based on the Middelware Design Pattern.  Express wraps the vanilla Node.js request and response objects and provides helpful abstractions to the Node.js workflow.  For example, the Express-powered response object includes a helpful method called `sendFile` which abstracts the process of retrieving a file from the file system and then sending that file as a response to the request.  There are many other abstractions Express provides, and their [documentation](https://expressjs.com/en/) is amazing.
+Express is a framework for Node.js based on the Middleware Design Pattern.  Express wraps the vanilla Node.js `request` and `response` objects and provides helpful abstractions to the Node.js workflow.  For example, the Express-powered response object includes a helpful method called `sendFile` which abstracts the process of retrieving a file from the file system and then sending that file as a response to the request.  There are many other abstractions Express provides, and their [documentation](https://expressjs.com/en/) is amazing.
 
 <div id="apis"></div>
 
@@ -43,11 +43,11 @@ There are a few goals we will be working towards when creating our server:
 #### Start application (see note below)
 1. [  ] To start your node server and compile the boilerplate React application, run the following: `npm run dev`
     
-    - `npm run dev` is actually an npm script - to see what it really runs, you can look inside package.json
+    - `npm run dev` is actually an npm script - to see what it really runs, you can look in the `scripts` object inside package.json
 
 1. [  ] To 'access' your React application in the browser, visit: `http://localhost:8080/`
   
-    - **Note:** the React application won't actually load all the data until we've configured our server, so don't worry if it doesn't load properly at this point!
+    - **Note:** the React application won't actually load until we've configured our server, so for now, it's just going to say, "Loading data, please wait..."
 
     - **Note:** while the React app runs on `http://localhost:8080`, our _server_ is going to be running on `http://localhost:3000` so if you are planning to test with Postman instead of (or in addition to) using the React app, send your Postman requests to `http://localhost:3000`.
 
@@ -68,13 +68,21 @@ We won't be needing this just yet, but if you want to test to see if it works, o
 #### Serving main React app
 1. [  ] Add a route handler that looks for a `GET` request to `/`
 1. [  ] When a `GET` to `/` is received, respond with the `index.html` file inside the `/client` directory
-1. [  ] Test your route by going to `localhost:8080/` or sending a `GET` request to `http://localhost:3000/` (using Postman or some equivalent).  You should be served a React application!
+1. [  ] Test your route by going to `http://localhost:8080/` or sending a `GET` request to `http://localhost:3000/` (using Postman or some equivalent).  You should be served the basic React application! **Note:** Due to using webpack-dev-server (which you'll learn more about in a later unit), this may seem like an unnecessary step since you can already see your React app on `http://localhost:8080`. This is an important step though in any project you will eventually have a production environment for since you won't be using webpack-dev-server in production!
 
 #### Handle unknown routes
-Since we **always** want to respond to a request, even if we aren't going to _process_ it, Express gives us a handy way to 'catch' any unknown requests and respond in a generic way.  We can use the `*` symbol to catch any route. This route handler must be the **last** route handler you configure, otherwise it will 'catch' routes you mean to handle.
-1. [  ] After your last configured route handler, add another route handler.  This route handler should run regardless of request method, and should look for requests to `*`.
-1. [  ] Add an anonymous middleware function for this route handler that will simply send back a status code of 404.
-1. [  ] Test your new route.  Try going to `localhost:8080/nothandlingthis` (or sending a simple `GET` request to `http://localhost:3000/nothandlingthis`).  You should get back a simple 404 status code.
+Since we **always** want to respond to a request, even if we aren't going to _process_ it, Express gives us a handy way to 'catch' any unknown requests and respond in a generic way. Read through the express docs on how to setup a catch-all route for unhandled endpoint requests.  **Hint:** This route handler must be the **last** route handler you configure, otherwise it will 'catch' routes you mean to handle.
+1. [  ] After your last configured route handler, add another route handler.  This route handler should run regardless of request method, and should have only one anonymous middleware function.
+1. [  ] The anonymous middleware function for this route handler should simply send back a status code of 404, no other data necessary. **Hint:** check the express docs for a handy method you can use to send back just a status code.
+1. [  ] Test your new route.  Try sending a `GET` request on Postman to `http://localhost:3000/nothandlingthis`.  You should get back a simple 404 status code.  Alternatively, you can check the Network tab in Chrome dev tools to see the 404 status code coming back for our request to `/api/characters` since we are not yet handling this route on our server!
+
+**A quick note on Chrome Dev Tools - Network Tab**
+The Network tab of the Chrome Dev Tools is a great place to get acquainted with outgoing requests and incoming responses.  You can see all of your browser's outgoing requests and if you click on a particular request you can see a lot of information such as:
+
+* the full request (headers, body, and other metadata)
+* the full response (headers, data, status code, etc)
+
+The network tab is a great place to look when troubleshooting requests and responses because you can see the exact format of your request body data and the exact format of the response from the server.
 
 ### Configure global error handler
 The golden rule of middleware is **never close out a request in a reusable middleware function**.  Express enables us to write a global error handler which we can invoke within middleware by passing an error object as an argument to the `next` function. See more details [here](https://expressjs.com/en/guide/error-handling.html#writing-error-handlers).  Let's configure this global error now while we're still working in our `server.js` file.
@@ -127,10 +135,10 @@ First, we'll want to _get_ any current favorite selections so that we can add to
     ```
 
 #### Create fileController.addFav
-Now that we have any exsiting favs, let's add a new one.
+Now that we have any existing favs, let's add a new one.
 
 1. [  ] In the `server/controllers/fileController.js` add a new method called `addFav`.
-1. [  ] We expect that this piece of middleware will run after some other middleware which will get all our exsiting favorites data.  Let's be sure we have this data that we'll need to actually complete this function.  Verify that we have a property on the `res.locals` object called `favs` and that the value of this property is an object.
+1. [  ] We expect that this piece of middleware will run after some other middleware which will get all our existing favorites data.  Let's be sure we have this data that we'll need to actually complete this function.  Verify that we have a property on the `res.locals` object called `favs` and that the value of this property is an object.
     1. [  ] If either of those checks are invalid, invoke the global Express error handler with the following error object:
     ```
     {
@@ -167,7 +175,7 @@ Now that your router is ready, let's add it to the `/server/server.js` file so t
 1. [  ] Test your new route handler by going to `localhost:8080/`. When the react app loads, click the star outline icon on any character where the star is an outline and not filled.  This should update the star to filled and the `server/data/favs.json` file should now have new key / value pair where the key is the `charId` for the favorited character and the value is `true`. Alternatively, you can send a `POST` request to `http://localhost:3000/api/favs/{insert-specific-character-id-here}` and you should get back a JSON object with a `favs` object property defined with the character you submitted as one of the key/value pairs.
 
 ### Populate existing favorite characters data on load
-We are now saving our favorite characters in a data file! This is great, but try refreshing your application... uh oh, the favorites aren't being populated when the browser refreshes 😕.  Let's fix this by adding another route to enable getting our favorties.
+We are now saving our favorite characters in a data file! This is great, but try refreshing your application... uh oh, the favorites aren't being populated when the browser refreshes 😕.  Let's fix this by adding another route to enable getting our favorites.
 
 #### Add middleware to initial api call route handler
 1. [  ] In the `/server/routes/api.js` file, add the new `fileController.getFavs` middleware in the `GET` to `/` route handler.
@@ -180,10 +188,10 @@ We are now saving our favorite characters in a data file! This is great, but try
 Our application can successfully add a new favorite and loads all our existing favorites when the app loads.  That's great! However, what happens if one of our favs has now gone to the dark side and we no longer want them as one of our favs? Try clicking the filled star icon in your React app. Nothing happens again! Let's configure our server to also handle _removing_ a favorite from the list.
 
 #### Create fileController.removeFav
-Now that we have any exsiting favs, let's add a new one.
+Now that we have any existing favs, let's add a new one.
 
 1. [  ] In the `server/controllers/fileController.js` add a new method called `removeFav`.
-1. [  ] We expect that this piece of middleware will run after some other middleware which will get all our exsiting favorites data.  Let's be sure we have this data that we'll need to actually complete this function.  Verify that we have a property on the `res.locals` object called `favs` and that the value of this property is an object.
+1. [  ] We expect that this piece of middleware will run after some other middleware which will get all our existing favorites data.  Let's be sure we have this data that we'll need to actually complete this function.  Verify that we have a property on the `res.locals` object called `favs` and that the value of this property is an object.
     1. [  ] If either of those checks are invalid, invoke the global Express error handler with the following error object:
     ```
     {
