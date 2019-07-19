@@ -7,6 +7,12 @@ class Characters extends Component {
   constructor(props) {
     super(props);
 
+    /**
+     * NOTE: we can use state in this child component because
+     *       it is state that is specific to only this component
+     *       and does not need to be accessible to parent and / or
+     *       sibling components.
+     */
     this.state = {
       fetchingDetails: false,
     };
@@ -46,7 +52,8 @@ class Characters extends Component {
 
   favClicked(charId) {
     let method = 'POST';
-    if (this.props.favs[charId]) method = 'DELETE';
+    if (this.props.favs
+      && this.props.favs[charId]) method = 'DELETE';
     fetch(`/api/favs/${charId}`, {
       method,
       body: JSON.stringify({ id: charId }),
@@ -74,7 +81,7 @@ class Characters extends Component {
         <CharacterCard
           key={i}
           info={char}
-          isFav={favs[id] || false}
+          isFav={favs && favs[id] ? favs[id] : false}
           nickname={nicknames[id]}
           getDetails={this.getDetails}
           favClicked={this.favClicked}

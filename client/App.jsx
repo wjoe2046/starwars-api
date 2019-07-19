@@ -29,7 +29,7 @@ class App extends Component {
   componentDidMount() {
     fetch('/api/')
       .then(res => res.json())
-      .then(({ characters, favs, nicknames }) => {
+      .then(({ characters, favs = {}, nicknames = {} }) => {
         const { characterIds, charactersById } = this.formatCharacters(characters);
         return this.setState({
           fetchedChars: true,
@@ -93,6 +93,12 @@ class App extends Component {
     return (
       <div className="router">
         <main>
+          {/*
+              NOTE: The syntax below is for React-Router
+                - A helpful library for routing with a React app.
+                You can learn more about this at:
+                https://reacttraining.com/react-router/web/guides/quick-start
+          */}
           <Switch>
             <Route
               exact

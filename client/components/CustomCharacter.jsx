@@ -14,6 +14,12 @@ class CustomCharacter extends Component {
   constructor(props) {
     super(props);
 
+    /**
+     * NOTE: we can use state in this child component because
+     *       it is state that is specific to only this component
+     *       and does not need to be accessible to parent and / or
+     *       sibling components.
+     */
     this.state = {
       nickname: '',
     };
@@ -41,7 +47,8 @@ class CustomCharacter extends Component {
     /** MAIN CHALLENGE CODE - comment out if working on Extension 1  */
     const charId = this.props.match.params.id;
     const nicknamesToUpdate = { ...this.props.nicknames };
-    if (nicknamesToUpdate[charId]
+    if (nicknamesToUpdate
+      && nicknamesToUpdate[charId]
       && !this.state.nickname.length) {
       delete nicknamesToUpdate[charId];
     } else {
