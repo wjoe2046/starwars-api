@@ -119,6 +119,11 @@ Express enables us to modularize our routes so that when we have a lot of routes
 ### Save favorite characters
 You may notice that each character card in the React app has a star outline icon in the top right corner.  This icon denotes whether or not the user has selected the charater as one of their favorites.  A star outline notes that this character is _not_ a favorite and a filled star notes that this character _is_ a favorite.  Try clicking on a star outline for any character.  What happens? 🤔 Nothing! Because our server is not setup to handle adding / updating favorites.  We will now add this functionality so that our users can save their favs.
 
+#### Configure body-parser global middleware
+Now, our clients will be sending some data with their requests to our API via the request body.  You'll remember from vanilla node that the request body data is transmitted as a stream.  Luckily though, the Express team maintains a handy piece of middlware called `body-parser` which provides an abstraction for the  process of concatenating the streaming body data.  Take a look at the [body-parser](https://www.npmjs.com/package/body-parser) middleware docs.  This is what we will configure globally so that this process runs on _all_ incoming requests to our server.
+1. [  ] In the `server/server.js` file, require in the body-parser library (it has already been installed as a node module since it was listed as a dependency in `package.json`).
+1. [  ] In the same file, under the `// configure body parser` section, setup a global middleware call to configure the body-parser library to parse the body as `json`.  **Hint:** see the Express docs on configuring global middlware.  **Hint 2:** see the body-parser docs for specific configurations on json.
+
 #### Create fileController.getFavs
 First, we'll want to _get_ any current favorite selections so that we can add to them instead of overwriting them.
 
@@ -273,11 +278,6 @@ Another option in our React app is to `Get More Info` for each character.  The g
 The specific additional character details we are going to care about are:
 * The character's homeworld
 * The film(s) the character was featured in
-
-#### Configure body-parser global middleware
-We are now at a point where clients will not only be sending requests to our API, but we now will need them to include some data with their requests.  This data will be stored in the request body.  You'll remember from vanilla node that the request body data is transmitted as a stream.  Luckily though, the Express team maintains a handy piece of middlware called `body-parser` which provides an abstraction for the  process of concatenating the streaming body data.  Take a look at the [body-parser]() middleware docs.  This is what we will configure globally so that this process runs on _all_ incoming requests to our server.
-1. [  ] In the `server/server.js` file, require in the body-parser library (it has already been installed as a node module since it was listed as a dependency in `package.json`).
-1. [  ] In the same file, under the `// configure body parser` section, setup a global middleware call to configure the body-parser library to parse the body as `json`.  **Hint:** see the Express docs on configuring global middlware.  **Hint 2:** see the body-parser docs for specific configurations on json.
 
 #### Create starWarsController.validateRequestCharacter
 Before we start making requests to the SWAPI, we'll want to validate our incoming requests to make sure we have the correct data required to process the request.  In order to get additional information about a character, we'll need the character information to be passed to us in the request body. Since we already have body-parser configured to parse the request body, now all we need to do is setup some custom middleware to _validate_ that request body.
